@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<title>◊select['h1 doc]</title>
+<link rel="stylesheet" href="tufte.css">
+
+◊(if (getenv "POLLEN") "
+<script type='text/javascript' src='/pushstream.js'></script>
+<script>
+var pushstream = new PushStream({port:8080, });
+  pushstream.onmessage = function(data) {
+    console.log('Received message:', data);
+    if (data === 'now') {
+      window.location.reload();
+    }
+  };
+  pushstream.addChannel('refreshme');
+  pushstream.connect();
+</script>
+" "")
+</head>
+
+<article>
+◊(->html doc)
+</article>

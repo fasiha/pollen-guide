@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Take One. Or, Let's Try To Get the Basics.</title>
-<link rel="stylesheet" href="/tufte.css">
+<link rel="stylesheet" href="tufte.css">
 </head>
 
 <article>
@@ -10,7 +10,7 @@
 
 Let's try and make the basics work. How do we do things like the tutorials on Pollen markup: <em>italicize things</em>. How do we make <a href="http://github.com">links to cool things</a>? Cool!
 
-Observe that <em>this call</em> produces the same result as <em>this call</em>. And Pollen, when targeting HTML, can deal with attributes in the same way: <span class="hidden">this span</span> produces the same output as <span class="hidden">this span</span>. But watch out! If you <code>define</code> a tag like we did with <code>linky</code> to make links, you can't just randomly pass attributes in this way. Since <code>linky</code> is expecting its first argument to be a string URL, not a list, this won't even compile: (missing <lozenge></lozenge>)linky['((class "hidden") (href "/"))]{won't work}.
+Observe that <em>this call</em> produces the same result as <em>this call</em>. And Pollen, when targeting HTML, can deal with attributes in the same way: <span class="hidden">this span</span> produces the same output as <span class="hidden">this span</span>. But watch out! If you <code>define</code> a tag like we did with <code>linky</code> to make links, you can't just randomly pass attributes in this way. Since <code>linky</code> is expecting its first argument to be a string URL, not a list, this won't even compile: <code>(missing <lozenge></lozenge>)linky['((class "hidden") (href "/"))]{won't work}</code>.
 
 Build me with <pre>$ raco pollen render take1.html
 $ python -m SimpleHTTPServer 9090</pre>

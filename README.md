@@ -1,10 +1,10 @@
 # A poor guide to Pollen
 The [official Pollen documentation](pkg-build.racket-lang.org/doc/pollen/) is a rich and hearty repast. That may be why it took me longer than expected to get where I wanted to go.
 
-So, here's a poor and meagre introduction that may help others get started as quickly as possible.
+So, here’s a poor and meagre introduction that may help others get started as quickly as possible.
 
 ## Goal
-I'm trying to write Pollen markup that generates Dave Liepmann's [Tufte CSS](http://www.daveliepmann.com/tufte-css/)-compliant HTML. Tufte CSS has some nice rules for sidenotes and headings that I'd like to write for, without writing HTML.
+I’m trying to write Pollen markup that generates Dave Liepmann’s [Tufte CSS](http://www.daveliepmann.com/tufte-css/)-compliant HTML. Tufte CSS has some nice rules for sidenotes and headings that I’d like to write for, without writing HTML.
 
 ## Preliminaries
 Install [Racket](http://download.racket-lang.org/)
@@ -18,9 +18,9 @@ Then install Pollen by running `$ raco pkg install pollen` and answering "yes" a
 
 Now. After reading portions of [three](http://pkg-build.racket-lang.org/doc/pollen/first-tutorial.html) [longform](http://pkg-build.racket-lang.org/doc/pollen/second-tutorial.html) [tutorials](http://pkg-build.racket-lang.org/doc/pollen/third-tutorial.html) ([fourth](http://pkg-build.racket-lang.org/doc/pollen/fourth-tutorial.html) available), a [mini-tutorial](http://pkg-build.racket-lang.org/doc/pollen/mini-tutorial.html), and a [quick tour](http://pkg-build.racket-lang.org/doc/pollen/quick-tour.html), you will likely be very excited about many things. But for purposes of this poor guide, you can forget everything about DrRacket, `.pp` Pollen preprocessor files, `.pmd` & Pollen-Markdown mode, the Pollen project server (`raco pollen start`), etc.
 
-We'll be writing Pollen markup directly in `.html.pm` files, rendering them from the command line with `raco pollen render`, and viewing just the result in a browser. Clone this repository and follow along.
+We’ll be writing Pollen markup directly in `.html.pm` files, rendering them from the command line with `raco pollen render`, and viewing just the result in a browser. Clone this repository and follow along.
 
-**N.B.** I'm assuming you have some passing familiarity with the Lisp family, from Common Lisp or Emacs Lisp or Scheme or Clojure or somewhere. The examples that follow have enough weird Pollen awesomeness that I can't stop and explain symbols or [`,@ unquote-splicing`](http://docs.racket-lang.org/guide/qq.html). But I will try to point out Racketisms to save you some Googling, though it's always a good idea to [Learn X=Racket in Y Minutes](http://learnxinyminutes.com/docs/racket/).
+**N.B.** I’m assuming some passing familiarity with a Lisp, like Common Lisp or Emacs Lisp or Scheme or Clojure. The examples that follow have enough weird Pollen awesomeness that I can’t stop and explain parens or symbols or [`,@ unquote-splicing`](http://docs.racket-lang.org/guide/qq.html). But I will try to point out Racketisms to save some Googling, and it’s always a good idea to [Learn X=Racket in Y Minutes](http://learnxinyminutes.com/docs/racket/).
 
 ## Take One. Basic and not-so-basic functionality.
 In the `take1/` directory there are
@@ -33,26 +33,26 @@ The reason you could forget about Markdown and the Pollen preprocessor is becaus
 
 <img width="1482" alt="take1-screenshot" src="https://cloud.githubusercontent.com/assets/37649/9675781/2c032492-5290-11e5-9a88-68aacc828ab3.png">
 
-In the Pollen markup file `take1/take1.html.pm`, we have some Racket function definitions starting with ◊, then a bunch of content. Wait, maybe I overstated the difference between Racket code versus content, because what's the difference between
+In the Pollen markup file `take1/take1.html.pm`, we have some Racket function definitions starting with ◊, then a bunch of content. Wait, maybe I overstated the difference between Racket code versus content, because what’s the difference between
 - ``◊(define (emphatic . xs) `(em ,@xs))``, and
 - ``◊emphatic{italicize things}``? Or, worse,
-- ``◊h1{Take One. Or, Let's Try To Get the Basics.}``?
+- ``◊h1{Take One. Or, Let’s Try To Get the Basics.}``?
 
-### Pollen text mode versus Racket mode: Pollen's two syntaxes for calling functions
-Here's the first thing you need to know. There's a **one-to-one equivalence** between 
+### Pollen text mode versus Racket mode: Pollen’s two syntaxes for calling functions
+Here’s the first thing you need to know. There’s a **one-to-one equivalence** between 
 - `◊foo[arg1 arg2]{final-arg}`, which [is called](http://pkg-build.racket-lang.org/doc/pollen/reader.html#%28part._.The_two_command_modes__text_mode___.Racket_mode%29) Pollen text mode, and 
 - `◊(foo arg1 arg2 final-arg)` which is Racket mode.
 
 Both call a Racket function `foo`. If the existence of this isomorphism strikes you as pretty freaking amazing, it should, and not just from a theoretical sense. It allows you to treat `foo` as a Racket function using the latter, and as an *equivalent* HTML tag with the former. 
 
 ### Pollen forgives undefined functions
-The other thing you need to know is also awesome: **if Pollen finds you using functions-tags that you haven't `define`d, it'll treat them as plain HTML tags**. This is why `take1.html.pm` can call `◊h1{Take One …}` without anybody defining `h1` anywhere.
+The other thing you need to know is also awesome: **if Pollen finds you using functions-tags that you haven’t `define`d, it’ll treat them as plain HTML tags**. This is why `take1.html.pm` can call `◊h1{Take One …}` without anybody defining `h1` anywhere.
 
 Put the two of these factoids together and you see why we can use `◊span` as 
 - a Pollen tag via `◊span['((class "hidden") (id "id1"))]{my span}`, 
 - **and** as a Racket function via `◊(span '((class "hidden") (id "id2")) "my other span")`, without explicitly defining `span`.
 
-Of course you can see that, while they're equivalent, in practice it's easier to use one syntax in for some situations and the other for others, if only because you don't need to quote text when you use `◊span{look ma, no quotes!}`.
+Of course you can see that, while they’re equivalent, in practice it’s easier to use one syntax in for some situations and the other for others, if only because you don’t need to quote text when you use `◊span{look ma, no quotes!}`.
 
 ### Explaining aforementioned usages
 Now you can understand those three lines of code above.
@@ -61,7 +61,7 @@ Now you can understand those three lines of code above.
 
 We invoke this function using `◊emphatic{italicized text}`, and it renders as `<em>italicized text</em>`.
 
-And as Pollen smartly passes through undefined functions as tags, ``◊h1{Take One. Or, Let's Try To Get the Basics.}`` produces the appropriate `<h1>` tag.
+And as Pollen smartly passes through undefined functions as tags, ``◊h1{Take One. Or, Let’s Try To Get the Basics.}`` produces the appropriate `<h1>` tag.
 
 Test your understanding: given this `linky` function,
 ```racket
@@ -74,28 +74,149 @@ what would
 render as? You may need to refer to the documentation on [`unquote`](http://docs.racket-lang.org/guide/qq.html) again. Note how this sophomoric implementation prevents `linky` from being given additional attributes like `id` or `class`.
 
 ### Templates: packaging it into a tidy HTML file
-So in the `take1/` directory, run `$ raco pollen render take1.html`. Unlike other markup translators I've used, Pollen doesn't write to stdout, and will overwrite `take1.html`. For now it can just be opened it in a browser (we'll talk about webservers in a subsequent take). 
+So in the `take1/` directory, run
+```
+$ raco pollen render take1.html
+```
+Unlike other markup translators I’ve used, Pollen doesn’t write to stdout, and will overwrite `take1.html`. For now it can just be opened it in a browser (we’ll talk about webservers in a subsequent take). 
 
-You may have noticed, even in the screenshot above, that there is some boilerplate in the rendered HTML that's not in the origial Pollen markup, like `head` and `meta` tags. This comes from a template file, in our case called `take1/template.html`.
+You may have noticed, even in the screenshot above, that there is some boilerplate in the rendered HTML that’s not in the origial Pollen markup, like `head` and `meta` tags. This comes from a template file, in our case called `take1/template.html`.
 
-This template is also a Pollen file, despite lacking any Pollen-esque file extension. Note a couple of ◊s in it: the first one is just a bit of showing off—the contents of the first `<h1>` tag is grabbed via a Pollen function `select` and used to set the page's `<title>`: `<title>◊select['h1 doc]</title>`. (In Racket mode, this would be `◊(select 'h1 doc)`.) The X-expr `doc` containing the abstract syntax tree (AST) of `take1.html.pm` is available when the template is rendered, which `select` can scan, à la `getElementsByTagName`. 
+This template is also a Pollen file, despite lacking any Pollen-esque file extension. Note a couple of ◊s in it: the first one is just a bit of showing off—the contents of the first `<h1>` tag is grabbed via a Pollen function `select` and used to set the page’s `<title>`: `<title>◊select['h1 doc]</title>`. (In Racket mode, this would be `◊(select 'h1 doc)`.) The X-expr `doc` containing the abstract syntax tree (AST) of `take1.html.pm` is available when the template is rendered, which `select` can scan, à la `getElementsByTagName`. 
 
-A bit later, inside a Tufte CSS-specific `<article>` tag, another Pollen function `->html` converts the AST to HTML. This function is clearly tightly intertwined with its target format, but it's illuminating to see an alternative AST-to-output converter: 
+A bit later, inside a Tufte CSS-specific `<article>` tag, another Pollen function `->html` converts the AST to HTML. This function is clearly tightly intertwined with its target format, but it’s illuminating to see an alternative AST-to-output converter: 
 ```racket
 ◊(apply string-append (filter string? (flatten doc)))
 ```
-After flattening the nested lists and throwing out tags and attributes, concatenate the strings that remain and you'd have a pretty good *plaintext* representation of `take1.html.pm`.
+After flattening the nested lists and throwing out tags and attributes, concatenate the strings that remain and you have a pretty good *plaintext* representation of `take1.html.pm`.
 
 ### Summary of Take One
 
-The functionality demonstrated so far is pretty elementary. The Pollen syntax can seem peculiar, and one couldn't be blamed for being uneasy with the thought of constantly dropping into Racket. Maybe worst of all is we don't have any easy way to *italicize* text like Markdown.
+The functionality demonstrated so far is pretty elementary. The Pollen syntax can seem peculiar, and one couldn’t be blamed for being uneasy with the thought of constantly dropping into Racket. Maybe worst of all is we don’t have any easy way to *italicize* text like Markdown.
 
-But I am already awestruck by the vistas of flexibility Pollen's approach reveals. Having your document and your template be fully-programmable in the same language dramatically lowers the activation energy for complex document workflows. 
+But I am already awestruck by the vistas of flexibility Pollen’s approach reveals. Having your document and your template be fully-programmable in the same language dramatically lowers the activation energy for complex document workflows. 
 
-The classic gripe of technical writers with Markdown—its lack of footnotes—can readily be fixed by a couple of quick Racket functions: you could write your paper in Markdown, use Pollen annotations just for the footnotes, and output another Markdown file with footnotes all fancy. But I'd argue that Markdown offers precious little besides single-character markup compared to Pollen markup, hence my advice to throw oneself whole-heartedly on Pollen markup.
+The classic gripe of technical writers with Markdown—its lack of footnotes—can readily be fixed by a couple of quick Racket functions: you could write your paper in Markdown, use Pollen annotations just for the footnotes, and output another Markdown file with footnotes all fancy. But I’d argue that Markdown offers precious little besides single-character markup compared to Pollen markup, hence my advice to throw oneself whole-heartedly on Pollen markup.
 
-In the next take, we'll see how to make Tufte CSS sidenotes and get proper paragraph tags, two much more cognitively burdensome tasks.
+In the next take, we’ll see how to make Tufte CSS sidenotes and get proper paragraph tags, two much more cognitively burdensome tasks.
 
-## Take Two. Things that appear easier than they are.
 
-… Move the sidenote/splice business here, and include whitespace detection in this take. Take three can be the nginx/push-stream magic.
+## Take Two. Things are harder than they appear.
+
+Now consider the contents of the `take2/` directory. Again we have a Pollen markup file, a template, the Tufte CSS `.css` file, and the rendered HTML. Re-render the last with
+```
+$ raco pollen render take2.html
+```
+
+### Sidenote sausage
+As mentioned above, [Tufte CSS](http://www.daveliepmann.com/tufte-css/) has nice sidenotes. But a sidenote isn’t a single tag. Here’s how the sidenote sausage is made:
+```html
+Flowing text.
+<label for="LABEL" class="margin-toggle sidenote-number"></label>
+<input id="LABEL" class="margin-toggle" type="checkbox"></input>
+<span class="sidenote">SIDENOTE CONTENT</span>
+More flowing text.
+```
+We’d like to get this from just
+```
+Flowing text.◊sidenote["LABEL"]{SIDENOTE CONTENT} More flowing text.
+```
+The Pollen magic from the first take doesn’t help here. At best we could squeeze all three of these tags into a single `<sidenote>` tag, which browsers could probably handle just fine. But can we find something more elegant, to just place three adjacent tags in the flow of the parent tag?
+
+Matthew Butterick’s [source code](http://unitscale.com/mb/technique/pollen.rkt.html) to [Making a dual typed / untyped Racket library](http://unitscale.com/mb/technique/dual-typed-untyped-library.html) shows us how to do this. It defines a `splice` Racket function and includes a test for it, and here’s my version of it:
+```racket
+(define (splice xs)
+  (apply append (for/list ([x (in-list xs)])
+                  (if (and (txexpr? x) (member (get-tag x) '(splice-me)))
+                      (get-elements x)
+                      (list x)))))
+
+(splice '(p "foo" (splice-me "bar") "zam")) ; should be equal to '(p "foo" "bar" "zam")
+```
+All this is worth puzzling over for a bit. As I make it out, `splice` searches the contents of an X-expr (which is a list, and without recursing into any nested sublist child-tags), looking for a child tag called `splice-me`. When it finds one, it replaces the child tag with its contents. So an input representing `<p>foo <splice-me>bar</splice-me> zam</p>` becomes `<p>foo bar zam</p>`. That `txexpr` and `get-tag` stuff is for dealing with the specifics of X-exprs (which *are* lists, i.e., S-exprs, but with extra pixie dust on top).
+
+So if instead of enclosing the `label`, `input`, and `span` tags inside a `<sidenote>` tag like I bemoaned doing a minute ago, enclose them in a `<splice-me>` tag, and ask Racket to run `splice` on every sub-X-expr in the document.
+
+Pollen has a neat way of doing this. It’s related to something I forgot to point out about the rendered HTML in Take One, that Pollen markup is enclosed in a `<root>` tag by Pollen convention. So define a `root` Racket function:
+```racket
+(define (root . xs)
+  (decode `(decoded-root ,@xs) #:txexpr-elements-proc splice))
+```
+[`decode`](http://pkg-build.racket-lang.org/doc/pollen/Decode.html) looks like a pretty powerful function that can operate on X-exprs—any X-exprs, including subsets of the `doc` AST (and the `#:` syntax is Racket for keyword arguments). Here, `decode` is used to apply `splice` to every child node of `<root>`, that is, the entire document, and put the results in a new tag, `<decoded-root>`.
+
+So now, instead of the contents of the Pollen markup going in a `<root>` tag, they’ll be in `<decoded-root>`. Any `<splice-me>` tag will have its contents spliced into its parent tag. 
+
+Sidenote sausage cooked.
+
+You are appalled that one had to write so much Racket to do something that one would think was a pretty common task—replacing one tag with mutliple adjacent ones. Why does Pollen give us any simpler way to do this? But that’s the point of having a fully-programmable document. Unix doesn’t have a command line utility to do every task, but the Unix philosophy of small tools that do one thing well and can be chained means it doesn’t have to. C doesn’t give you hash tables or linked lists: it gives you the tools to write them yourself. XML doesn’t specify every conceivable semantic tag: it embraces extensibility. The discomfort felt at performing surgery on your document’s complete AST soon evaporates into relief—and perhaps joy—at being able to surgically modify your document’s AST.
+
+### There are no newlines under the sun
+One very nagging thing about the Pollen renders so far is that newlines are passed through, and that you immediately noticed when you looked at `take1.html` in a browser—it looked weird because it lacked `<p>` paragraph tags, and it was basically a single run-on paragraph.
+
+Dealing with `<br>` and `<p>` tags, line breaks and paragraph tags, is thankfully something that you don’t have to write yourself, as Pollen comes with some [fancy functionality](http://pkg-build.racket-lang.org/doc/pollen/Decode.html#%28def._%28%28lib._pollen%2Fdecode..rkt%29._detect-paragraphs%29%29) to handle this. `detect-paragraphs` is pretty feature-rich, but to get the job done for `take2.html`, its default functionality is entirely sufficient.
+
+It is similar to `splice`, discussed a second ago, in that it scans an X-expr without recursing and converts newlines to `<p>` and `<br>` tags appropriately. So like `splice`, we can ask `decode` to run `detect-paragraphs` on each sub-X-expr while it’s running `splice`. Here’s the expanded call to `root`:
+```racket
+◊(define (root . xs)
+  (decode `(decoded-root ,@xs)
+          #:txexpr-elements-proc (compose1 detect-paragraphs splice)
+          #:exclude-tags '(pre)
+          ))
+```
+Note that the `#:txexpr-elements-proc` keyword argument to `decode` must be a single function, not a list, but we happen to be using a functional programming language here. `(compose1 detect-paragraphs splice)` returns a single function that will apply `splice` first, then `detect-paragraphs`.
+
+And what about that `#:exclude-tags` keyword argument? We don’t want to convert newlines in `<pre>` tags, and Pollen has thoughtfully given this high-level mechanism to prevent those from being decoded.
+
+It may be a good exercise to figure out how to run `splice` on `pre` tags but not `detect-paragraphs`: `detect`’s high-level customizations might not be sufficient for this and one may have to write a couple of lines of Racket.
+
+### Summary of Take Two
+
+This take is titled "things that are harder than they appear", but having seen what it takes to splice a tag’s children into its parent, I completely appreciate how Racket’s power can make mincemeat out of complex tasks once one understands the underlying data structures—and how Pollen dramatically reduces the activation energy to whipping up some Racket code.
+
+Then we saw that there are other things which Pollen has thought about and provides out-of-the-box solutions, like newline detection, smart punctuation (which I haven't demonstrated here), etc. Yet even thees are steeped in the Racket ethos, and are hugely programmable.
+
+In the next and last (planned) take, we'll set up some infrastructure to make Pollen authoring even easier. We'll set up a custom Nginx webserver that lets the HTML page auto-refresh whenever the Pollen markup is saved.
+
+## Take Three, where we get all steampunk
+So far my Pollen workflow has been edit–save–compile–refresh, switching between a text editor (vim), command line, and browser. This is tiring and here's how I chose to streamline this.
+
+First, set up an Nginx webserver to host files in the working directory, so instead of opening `file:///home/Users/…/take3.html` in your browser, you go to [http://localhost:8080/take3.html](http://localhost:8080/take3.html). I'll provide instructions on building a custom Nginx with HTTP push streams—you'll see why in a second—and a configuration file that should work out of the box.
+
+Then, I use the (common?) Unix utility `fswatch` to detect changes in my Pollen files. When a file is saved, `fswatch` runs `raco pollen render` and also makes a special request to the Nginx webserver, publishing an HTTP event to a channel that the HTML page is also subscribed to. When the HTML page receives an event on this channel, it refreshes the page.
+
+The HTML page is aware of this event channel because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but when finished and before uploading to a public webserver, one should remove this JavaScript code from the webpage. If the page is served on a staticly like on Github Pages, it probably won't do any harm, but it's just bad form to leave development infrastructure in a production environment, to use software development terms.
+
+So the last thing we'll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html` which contains HTML boilerplate will check for a `"POLLEN"` environment variable and include HTTP event logic when in testing mode, and leave it out otherwise. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
+
+### A word about webservers
+
+In previous takes I've mentioned using the `SimpleHTTPServer` module that even middle-aged Python installs have, but even this simple webserver wasn't necessary since the only external asset, Tufte CSS, was also present in the current directory. But for publishing and subscribing to HTTP events, we need a webserver.
+
+The world is veritably one's oyester when one is choosing webservers. I chose to use Nginx because it's (1) high-performance, (2) as customizable as a webserver associated with a specific programming language (like CherryPy–Python, Sinatra–Ruby, or Express–Node.js), and because it's the most widely deployed webserver in the world, (3) it has a lot of resources.
+
+(N.B. about that popularity statistic. People very frequently use Nginx alongside another webserver. Incoming requests are received by Nginx which reverse-proxies them to a cluster of servers running, say, Node.)
+
+Nginx doesn't include an HTTP event module, and so it has to be built from source. I recognize this may present too high an NRE for the casual Pollen-collector, and may find an alternative for the purposes of this poor guide. (I would also like to investigate Racket's webserver.) But for my own needs, I will most likely continue using Nginx. When it comes to serving static HTML and its images, JSON datasets, JavaScript libraries, MathJax, and the rest, nothing seems to beat it in performance.
+
+So for now, let's install Nginx.
+
+### Building a custom Nginx with an HTTP event module
+
+We will be building Nginx from source and will include this [push stream module](https://github.com/wandenberg/nginx-push-stream-module), since Nginx doesn't come with one. The push stream module has [installation instructions](https://github.com/wandenberg/nginx-push-stream-module#installation-) but here are mine, for Mac/Linux. Please share any knowledge about how to do this in Windows, and I will update these instructions.
+
+1. Download the latest Nginx source tarball. Currently, this is `nginx-1.9.4.tar.gz`.
+2. Extract it: on the commandline, `$ tar xzf nginx-1.9.4.tar.gz`.
+3. Also, clone the push stream module: `$ git clone https://github.com/wandenberg/nginx-push-stream-module.git`
+4. Go into the Nginx directory. `$ cd nginx-1.9.4`.
+5. Run the configuration script: `$ ./configure --add-module=../nginx-push-stream-module`.
+  a. There are some interesting optional flags that control how Nginx is built. You might skim `./configure --help`.
+  b. If you want to install it to a specific location, be sure to specify a `--prefix` flag with that location, otherwise Nginx will be built to work from `/usr/local/bin`. The first time I did this, I installed it to a personal directory, i.e., `./configure --add-module=../nginx-push-stream-module --prefix=$HOME/bin/nginx-custom`. I had to create the `nginx-custom` directory in `~/bin` of course.
+6. Build and install Nginx: `$ make && make install` (you may need a `sudo make install` if you chose to install it to its default location of `/usr/local/bin`).
+  a. If you chose to install it to a personal directory, feel free to go there and rename the `nginx` executable to something else, in case you have a global `nginx` that you don't want to stop using.
+
+Now you can test 
+
+`sed -e "s:PUTPWDHERE:$(pwd):" nginx.conf.template > nginx.conf`
+
+
+

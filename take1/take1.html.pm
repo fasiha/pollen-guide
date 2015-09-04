@@ -10,10 +10,10 @@
 
 Let's try and make the basics work. How do we do things like the tutorials on Pollen markup: ◊emphatic{italicize things}. How do we make ◊linky["http://github.com"]{links to cool things}? Cool!
 
-Observe that ◊emphatic{this call} produces the same result as ◊(emphatic "this call"). And Pollen, when targeting HTML, can deal with attributes in the same way: ◊span['((class "hidden"))]{this span} produces the same output as ◊(span '((class "hidden")) "this span"). But watch out! If you ◊code{define} a tag like we did with ◊code{linky} to make links, you can't just randomly pass attributes in this way. Since ◊code{linky} is expecting its first argument to be a string URL, not a list, this won't even compile: (missing ◊lozenge{})linky['((class "hidden") (href "/"))]{won't work}.
+Observe that ◊emphatic{this call} produces the same result as ◊(emphatic "this call"). And Pollen, when targeting HTML, can deal with attributes in the same way: ◊span['((class "hidden"))]{this span} produces the same output as ◊(span '((class "hidden")) "this span"). But watch out! If you ◊code{define} a tag like we did with ◊code{linky} to make links, you can't just randomly pass attributes in this way. Since ◊code{linky} is expecting its first argument to be a string URL, not a list, this won't even compile: ◊code{(missing ◊lozenge{})linky['((class "hidden") (href "/"))]{won't work}}.
 
 Build me with ◊pre{
 $ raco pollen render take1.html
 $ python -m SimpleHTTPServer 9090
 }
-Then visit ◊linky["http://localhost:9090/take1.html"]{localhost:9090/take1.html}.
+Then visit ◊linky["http://localhost:9090/take1.html"]{localhost:9090/take1.html}. Or skip SimpleHTTpServer and just open `take1.html` in your browser.

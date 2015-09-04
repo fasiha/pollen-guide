@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8">
+<title>Take Two. Or, some things are harder than they appear.</title>
+<link rel="stylesheet" href="tufte.css">
+</head>
+
+<article>
+<decoded-root><h1>Take Two. Or, some things are harder than they appear.</h1><section><p>Tufte CSS' has nice sidenotes, but each sidenote is made up of three side-by-side tags: a <code>&lt;label&gt;</code> to contain a unique identifier, a fake <code>&lt;input&gt;</code>, and a <code>span</code> tag containing the sidenote's content. We'd like to make a single <code>sidenote</code> tag in Pollen that renders to that.<label for="sidenoteReference" class="margin-toggle sidenote-number"></label><input id="sidenoteReference" class="margin-toggle" type="checkbox" /><span class="sidenote">Here's that sidenote!</span></p><p>None of the magic from Take One helps tell us how to expand a single tag into three adjacent ones, unless it's something stupid like combining the three into a single parent tag (NE VEUX PAS). So we need some new magic, courtesy of Matthew Butterick's <a href="http://unitscale.com/mb/technique/pollen.rkt.html">example code</a>: the <code>splice</code> function and a custom <code>root</code> function.</p><p>We also desperately need to automatically detect paragraphs and insert <code>&lt;p&gt;</code> tags.</p><p>Build me with </p><pre>$ raco pollen render take2.html
+$ python -m SimpleHTTPServer 9090</pre><p>Then visit <a href="http://localhost:9090/take2.html">localhost:9090/take2.html</a>. Or just open <code>take2.html</code> in your browser.</p></section></decoded-root>
+</article>

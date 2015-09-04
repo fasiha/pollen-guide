@@ -2,4 +2,5 @@
 */compiled/
 pollen-cache/
 compiled/
-
+*.png
+*.conf

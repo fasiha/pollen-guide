@@ -180,13 +180,11 @@ In the next and last (planned) take, we’ll set up some infrastructure to make 
 ## Take Three, where we get all steampunk
 So far, my Pollen workflow has been edit–save–compile–refresh, switching between a text editor (gvim), command line, and browser. This is tiring and here’s how I chose to streamline this.
 
-First, I install [Node.js](https://nodejs.org), a popular cross-platform JavaScript runtime with a very large ecosystem, and run a ~100-line JavaScript program which starts a webserver and watches a single Pollen markup file for changes. When I save that file, Node re-renders the HTML and sends a server-sent event to any browser that is viewing the rendered HTML, telling it to refresh the page.
+First, I install [Node.js](https://nodejs.org), a popular cross-platform JavaScript runtime with a very large ecosystem, and run a ~100-line JavaScript program which starts a webserver and watches a single Pollen markup file for changes. When I save that file, Node calls `raco` to re-render the HTML and sends a server-sent event to any browser viewing the rendered HTML, telling it to refresh the page.
 
-The HTML page is aware of server-sent events because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but such infrastructure code should be removed before uploading to a public webserver for general viewing.
+The HTML page is aware of server-sent events because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but such infrastructure code should be removed before uploading to a public webserver for general viewing. So the last thing we’ll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html`, which contains HTML boilerplate, will check for a `POLLEN` environment variable, and include refresh logic only when in testing mode, otherwise leaving it out. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
 
-So the last thing we’ll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html`, which contains HTML boilerplate, will check for a `POLLEN` environment variable, and include refresh logic only when in testing mode, otherwise leaving it out. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
-
-**Aside** I personally use Nginx with this [HTTP push stream module](https://github.com/wandenberg/nginx-push-stream-module), because Nginx is far more performant than Node when it comes to serving big webpages loading images, JavaScript libraries, JSON datasets, MathJax, etc. There’s also a lot less custom code—none, really. But Nginx doesn’t work (well) on Windows, and one has to compile it from scratch to get the HTTP push stream module (which abstracts server-sent events, WebSockets, etc.). Rather than force readers of this poor guide to front this high NRE, I made Node.js alternative. And I chose Node because of my own familiarity and its cross-platform support. It is entirely possible to do all this in Racket.
+**Aside** I personally use Nginx with this [HTTP push stream module](https://github.com/wandenberg/nginx-push-stream-module), because Nginx is far more performant than Node when it comes to serving big webpages loading images, JavaScript libraries, JSON datasets, MathJax, etc. There’s also a lot less custom code—none, really. But Nginx doesn’t work (well) on Windows, and one has to compile it from scratch to get the HTTP push stream module (which abstracts server-sent events, WebSockets, etc.). Rather than force readers of this poor guide to front this high NRE, I made Node.js alternative. And I chose Node because of my own familiarity and its cross-platform support. It should possible to do all this in Racket.
 
 ### Setup and use
 
@@ -194,17 +192,17 @@ So the last thing we’ll do is make our Pollen markup aware of our desire to ma
 ```
 $ POLLEN=TESTING raco pollen render take3.html
 ```
-You could even read the input or output files, if you like. I note in passing that I've moved all Racket code out of the Pollen markup file into a `take3/pollen.rkt` Racket file, which Pollen loads as a module.
+You could even read the input or output files, if you like. I note in passing that I’ve moved all Racket code out of the Pollen markup file into a `take3/pollen.rkt` Racket file, which Pollen loads as a module.
 
-**Step 1** As a first step, download and install [Node.js](https://nodejs.org).
+**Step 1** As a first step, download and install [Node.js](https://nodejs.org). Works on Mac, Linux, and Windows, ARM and x86, the lot.
 
 **Step 2** Second, in the `take3/` directory in a terminal, run
 ```
 $ npm install
 ```
-`npm` is the package manager for Node. This installs a handful of dependencies in the `take3/node_modules` directory.
+`npm` is the package manager for Node. It looks at `take3/package.json` and installs a handful of dependencies in the `take3/node_modules` directory.
 
-> If you are using Internet Explorer, Edge, Opera Mini, or any browser that doesn’t support EventServer (full list of unsupporting browsers at [Can I Use](http://caniuse.com/#feat=eventsource)), copy the `node_modules/event-source-polyfill/eventsource.min.js` shim to the `take3/public` folder:
+> **Step 2.5** If you are using Internet Explorer, Edge, Opera Mini, or any browser that doesn’t support EventServer (full list of unsupporting browsers at [Can I Use](http://caniuse.com/#feat=eventsource)), copy the `node_modules/event-source-polyfill/eventsource.min.js` shim to the `take3/public` folder:
 ```
 cp node_modules/event-source-polyfill/eventsource.min.js public/
 ```
@@ -213,7 +211,7 @@ cp node_modules/event-source-polyfill/eventsource.min.js public/
 ```
 $ node server take3.html.pm "POLLEN=TESTING raco pollen render take3.html"
 ```
-This starts the Node application, including a webserver and a file watch on `take3.html.pm` Pollen markup file. That string `"POLLEN=TESTING raco …"` is what will be executed when changes to `take3.html.pm` are detected.
+This starts the Node application, including a webserver and a file watch on the `take3.html.pm` Pollen markup file. That string `"POLLEN=TESTING raco …"` is what will be executed when changes to `take3.html.pm` are detected.
 
 **Step 4** Next, visit [http://localhost:3000/take3.html](http://localhost:3000/take3.html) to view the rendered HTML being served by the Express.js webserver in Node.
 
@@ -225,11 +223,11 @@ N.B. Fastidious readers may notice two browser refreshes for a single save. The 
 
 ### Rendering for production environments
 
-I don’t want to get into the details of how server-sent events and their client-side counterpart, the EventSource API, are used here. The details are all in `take3/server.js` and in `take3/template.html`. Hopefully by specifying a diferent file to watch and command to run when one starts Node allows `server.js` to be readily adapted to other projects without needing any code changes in either file.
+I don’t want to get into the details of how server-sent events and their client-side counterpart, the EventSource API, are used here. The details are all in `take3/server.js` and in `take3/template.html`. Hopefully you can change the arguments to `node server.js` to work for different projects, without coding.
 
-However, it is important to note that this auto-refresh trick works because of custom JavaScript embedded in `template.html`. We don’t want this code to be present when we publish a Pollen document for a production environment, that is, when it’s ready to be shared with the world—it likely won’t cause any harm but really should be omitted if it’s not needed.
+But do note that this auto-refresh trick works because of custom JavaScript embedded in `template.html`. We don’t want this code to be present when we publish a Pollen document for a production environment. It likely won’t cause any harm but really should be omitted if it’s not needed.
 
-For this reason, `template.html` checks to see if a `POLLEN` environment variable is available. This is set, to `"TESTING"`, by prefixing the variable to the call to raco: `POLLEN=TESTING raco …`. The template blindly assumes that, if this environment varialbe is defined, Pollen is being run in a testing environment—it doesn’t care what the actual contents of the string are, and this behavior can certainly be customized within the template using Racket.
+For this reason, `template.html` checks to see if a `POLLEN` environment variable is available. One can set this by prefixing the variable to raco command:  `POLLEN=TESTING raco …`. The template assumes that, if this environment varialbe is defined, Pollen is being run in a testing environment—it doesn’t care what the actual contents of the string are.
 
 And if the template decides it is in a testing environment, it will include a couple of `<script>` tags in the HTML header which load the JavaScript that facilitates the auto-refresh feature. If no `POLLEN` environment variable is defined, these scripts are omitted.
 

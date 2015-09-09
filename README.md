@@ -190,15 +190,15 @@ So the last thing we’ll do is make our Pollen markup aware of our desire to ma
 
 ### Setup and use
 
-As a preliminary step, in the `take3/` directory, render the Pollen markup file:
+**Step 0** As a preliminary step, in the `take3/` directory, render the Pollen markup file:
 ```
 $ POLLEN=TESTING raco pollen render take3.html
 ```
-You could even read the input or output files, if you like.
+You could even read the input or output files, if you like. I note in passing that I've moved all Racket code out of the Pollen markup file into a `take3/pollen.rkt` Racket file, which Pollen loads as a module.
 
-As a first step, download and install [Node.js](https://nodejs.org).
+**Step 1** As a first step, download and install [Node.js](https://nodejs.org).
 
-Second, in the `take3/` directory in a terminal, run
+**Step 2** Second, in the `take3/` directory in a terminal, run
 ```
 $ npm install
 ```
@@ -209,15 +209,15 @@ $ npm install
 cp node_modules/event-source-polyfill/eventsource.min.js public/
 ```
 
-Third, run
+**Step 3** Third, run
 ```
 $ node server take3.html.pm "POLLEN=TESTING raco pollen render take3.html"
 ```
 This starts the Node application, including a webserver and a file watch on `take3.html.pm` Pollen markup file. That string `"POLLEN=TESTING raco …"` is what will be executed when changes to `take3.html.pm` are detected.
 
-Next, visit [http://localhost:3000/take3.html](http://localhost:3000/take3.html) to view the rendered HTML being served by the Express.js webserver in Node.
+**Step 4** Next, visit [http://localhost:3000/take3.html](http://localhost:3000/take3.html) to view the rendered HTML being served by the Express.js webserver in Node.
 
-For my final trick, I position my browser so that I can see it and my text editor at the same time. I edit the `take3.html.pm` Pollen markup file and save it. In a second or three, the browser refreshes in same place, showing my changes.
+**Step 5** For my final trick, I position my browser so that I can see it and my text editor at the same time. I edit the `take3.html.pm` Pollen markup file and save it. In a second or three, the browser refreshes in same place, showing my changes.
 
 ***Hurrah!***
 
@@ -241,6 +241,14 @@ This is classic Pollen:
 " "")
 ```
 We use Racket’s `if`, and choose to embed either a multi-line string containing HTML and JavaScript code, or an empty string. Happily, HTML and JavaScript can use single- and double-quotes just as easily, so I had to do no escaping of quotes in the `if` form! I can copy-and-paste HTML/JavaScript from non-Pollen sources without any problems. If I insisted on using double-quote, though, I would have had to escape them within the multiline quote.
+
+When rendering for production, simply omit the `POLLEN=TESTING` environment variable and the resulting HTML file will not mention refresh events: simply run `$ raco pollen render take3.html` and upload the resulting file to your web host.
+
+> **A technical note on `server.js`** The Node server sends browsers a message not only when it detects a file change, but also if it receives a POST request on `/events/ID` for some string `ID`—in this case, the Node server forwards the POST message to the browser. Therefore, one could have the server send a request to refresh via the following command in a terminal:
+```
+$ curl -f -s -X POST http://localhost:3000/events/refreshme -d 'change'
+```
+> Note how the ID of the event (or channel) is `refreshme` and the message is `change`, which is the same channel and message that the browsers are looking for. If instead of `-d 'change'` one had `-d 'hi'`, one would see `hi` in the browser JavaScript console. This provides another useful way to communicate from your shell to the browser. A script that combines Pollen rendering and POSTing a refresh request to the server (to forward to browsers) is included in the `take3/testing.sh` script.
 
 ### Summary of Take 3
 

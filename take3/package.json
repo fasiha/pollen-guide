@@ -5,6 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.13.3",
+    "event-source-polyfill": "0.0.6",
     "express": "^4.13.3",
     "on-finished": "^2.3.0"
   },

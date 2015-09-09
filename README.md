@@ -14,7 +14,7 @@ Install [Racket](http://download.racket-lang.org/)
 export PATH="$PATH:/Applications/Racket v6.2.1/bin"
 ```
 
-Then install Pollen by running `$ raco pkg install pollen` and answering "yes" a couple of times.
+Then install Pollen by running `$ raco pkg install pollen` and answering “yes” a couple of times.
 
 Now. After reading portions of [three](http://pkg-build.racket-lang.org/doc/pollen/first-tutorial.html) [longform](http://pkg-build.racket-lang.org/doc/pollen/second-tutorial.html) [tutorials](http://pkg-build.racket-lang.org/doc/pollen/third-tutorial.html) ([fourth](http://pkg-build.racket-lang.org/doc/pollen/fourth-tutorial.html) available), a [mini-tutorial](http://pkg-build.racket-lang.org/doc/pollen/mini-tutorial.html), and a [quick tour](http://pkg-build.racket-lang.org/doc/pollen/quick-tour.html), you will likely be very excited about many things. But for purposes of this poor guide, you can forget everything about DrRacket, `.pp` Pollen preprocessor files, `.pmd` & Pollen-Markdown mode, the Pollen project server (`raco pollen start`), etc.
 
@@ -173,52 +173,86 @@ It may be a good exercise to figure out how to run `splice` on `pre` tags but no
 
 This take is titled "things that are harder than they appear", but having seen what it takes to splice a tag’s children into its parent, I completely appreciate how Racket’s power can make mincemeat out of complex tasks once one understands the underlying data structures—and how Pollen dramatically reduces the activation energy to whipping up some Racket code.
 
-Then we saw that there are other things which Pollen has thought about and provides out-of-the-box solutions, like newline detection, smart punctuation (which I haven't demonstrated here), etc. Yet even thees are steeped in the Racket ethos, and are hugely programmable.
+Then we saw that there are other things which Pollen has thought about and provides out-of-the-box solutions, like newline detection, smart punctuation (which I haven’t demonstrated here), etc. Yet even thees are steeped in the Racket ethos, and are hugely programmable.
 
-In the next and last (planned) take, we'll set up some infrastructure to make Pollen authoring even easier. We'll set up a custom Nginx webserver that lets the HTML page auto-refresh whenever the Pollen markup is saved.
+In the next and last (planned) take, we’ll set up some infrastructure to make Pollen authoring even easier. We’ll set up a custom Nginx webserver that lets the HTML page auto-refresh whenever the Pollen markup is saved.
 
 ## Take Three, where we get all steampunk
-So far my Pollen workflow has been edit–save–compile–refresh, switching between a text editor (vim), command line, and browser. This is tiring and here's how I chose to streamline this.
+So far, my Pollen workflow has been edit–save–compile–refresh, switching between a text editor (gvim), command line, and browser. This is tiring and here’s how I chose to streamline this.
 
-First, set up an Nginx webserver to host files in the working directory, so instead of opening `file:///home/Users/…/take3.html` in your browser, you go to [http://localhost:8080/take3.html](http://localhost:8080/take3.html). I'll provide instructions on building a custom Nginx with HTTP push streams—you'll see why in a second—and a configuration file that should work out of the box.
+First, I install [Node.js](https://nodejs.org), a popular cross-platform JavaScript runtime with a very large ecosystem, and run a ~100-line JavaScript program which starts a webserver and watches a single Pollen markup file for changes. When I save that file, Node re-renders the HTML and sends a server-sent event to any browser that is viewing the rendered HTML, telling it to refresh the page.
 
-Then, I use the (common?) Unix utility `fswatch` to detect changes in my Pollen files. When a file is saved, `fswatch` runs `raco pollen render` and also makes a special request to the Nginx webserver, publishing an HTTP event to a channel that the HTML page is also subscribed to. When the HTML page receives an event on this channel, it refreshes the page.
+The HTML page is aware of server-sent events because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but such infrastructure code should be removed before uploading to a public webserver for general viewing.
 
-The HTML page is aware of this event channel because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but when finished and before uploading to a public webserver, one should remove this JavaScript code from the webpage. If the page is served on a staticly like on Github Pages, it probably won't do any harm, but it's just bad form to leave development infrastructure in a production environment, to use software development terms.
+So the last thing we’ll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html`, which contains HTML boilerplate, will check for a `POLLEN` environment variable, and include refresh logic only when in testing mode, otherwise leaving it out. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
 
-So the last thing we'll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html` which contains HTML boilerplate will check for a `"POLLEN"` environment variable and include HTTP event logic when in testing mode, and leave it out otherwise. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
+**Aside** I personally use Nginx with this [HTTP push stream module](https://github.com/wandenberg/nginx-push-stream-module), because Nginx is far more performant than Node when it comes to serving big webpages loading images, JavaScript libraries, JSON datasets, MathJax, etc. There’s also a lot less custom code—none, really. But Nginx doesn’t work (well) on Windows, and one has to compile it from scratch to get the HTTP push stream module (which abstracts server-sent events, WebSockets, etc.). Rather than force readers of this poor guide to front this high NRE, I made Node.js alternative. And I chose Node because of my own familiarity and its cross-platform support. It is entirely possible to do all this in Racket.
 
-### A word about webservers
+### Setup and use
 
-In previous takes I've mentioned using the `SimpleHTTPServer` module that even middle-aged Python installs have, but even this simple webserver wasn't necessary since the only external asset, Tufte CSS, was also present in the current directory. But for publishing and subscribing to HTTP events, we need a webserver.
+As a preliminary step, in the `take3/` directory, render the Pollen markup file:
+```
+$ POLLEN=TESTING raco pollen render take3.html
+```
+You could even read the input or output files, if you like.
 
-The world is veritably one's oyester when one is choosing webservers. I chose to use Nginx because it's (1) high-performance, (2) as customizable as a webserver associated with a specific programming language (like CherryPy–Python, Sinatra–Ruby, or Express–Node.js), and because it's the most widely deployed webserver in the world, (3) it has a lot of resources.
+As a first step, download and install [Node.js](https://nodejs.org).
 
-(N.B. about that popularity statistic. People very frequently use Nginx alongside another webserver. Incoming requests are received by Nginx which reverse-proxies them to a cluster of servers running, say, Node.)
+Second, in the `take3/` directory in a terminal, run
+```
+$ npm install
+```
+`npm` is the package manager for Node. This installs a handful of dependencies in the `take3/node_modules` directory.
 
-Nginx doesn't include an HTTP event module, and so it has to be built from source. I recognize this may present too high an NRE for the casual Pollen-collector, and may find an alternative for the purposes of this poor guide. (I would also like to investigate Racket's webserver.) But for my own needs, I will most likely continue using Nginx. When it comes to serving static HTML and its images, JSON datasets, JavaScript libraries, MathJax, and the rest, nothing seems to beat it in performance.
+> If you are using Internet Explorer, Edge, Opera Mini, or any browser that doesn’t support EventServer (full list of unsupporting browsers at [Can I Use](http://caniuse.com/#feat=eventsource)), copy the `node_modules/event-source-polyfill/eventsource.min.js` shim to the `take3/public` folder:
+```
+cp node_modules/event-source-polyfill/eventsource.min.js public/
+```
 
-So for now, let's install Nginx.
+Third, run
+```
+$ node server take3.html.pm "POLLEN=TESTING raco pollen render take3.html"
+```
+This starts the Node application, including a webserver and a file watch on `take3.html.pm` Pollen markup file. That string `"POLLEN=TESTING raco …"` is what will be executed when changes to `take3.html.pm` are detected.
 
-### Building a custom Nginx with an HTTP event module
+Next, visit [http://localhost:3000/take3.html](http://localhost:3000/take3.html) to view the rendered HTML being served by the Express.js webserver in Node.
 
-We will be building Nginx from source and will include this [push stream module](https://github.com/wandenberg/nginx-push-stream-module), since Nginx doesn't come with one. The push stream module has [installation instructions](https://github.com/wandenberg/nginx-push-stream-module#installation-) but here are mine, for Mac/Linux. Please share any knowledge about how to do this in Windows, and I will update these instructions.
+For my final trick, I position my browser so that I can see it and my text editor at the same time. I edit the `take3.html.pm` Pollen markup file and save it. In a second or three, the browser refreshes in same place, showing my changes.
 
-1. Download the latest Nginx source tarball. Currently, this is `nginx-1.9.4.tar.gz`.
-2. Extract it: on the commandline, `$ tar xzf nginx-1.9.4.tar.gz`.
-3. Also, clone the push stream module: `$ git clone https://github.com/wandenberg/nginx-push-stream-module.git`
-4. Go into the Nginx directory. `$ cd nginx-1.9.4`.
-5. Run the configuration script: `$ ./configure --add-module=../nginx-push-stream-module`.
-  a. There are some interesting optional flags that control how Nginx is built. You might skim `./configure --help`.
-  b. If you want to install it to a specific location, be sure to specify a `--prefix` flag with that location, otherwise Nginx will be built to work from `/usr/local/bin`. The first time I did this, I installed it to a personal directory, i.e., `./configure --add-module=../nginx-push-stream-module --prefix=$HOME/bin/nginx-custom`. I had to create the `nginx-custom` directory in `~/bin` of course.
-6. Build and install Nginx: `$ make && make install` (you may need a `sudo make install` if you chose to install it to its default location of `/usr/local/bin`).
-  a. If you chose to install it to a personal directory, feel free to go there and rename the `nginx` executable to something else, in case you have a global `nginx` that you don't want to stop using.
+***Hurrah!***
 
+N.B. Fastidious readers may notice two browser refreshes for a single save. The [file watching API](https://nodejs.org/docs/latest/api/fs.html#fs_fs_watch_filename_options_listener) in Node (and anywhere else) is a little persnickety and may choose to detect two changes, one immediately after another, when the file changed only a single time.
 
+### Rendering for production environments
 
-Now you can test 
+I don’t want to get into the details of how server-sent events and their client-side counterpart, the EventSource API, are used here. The details are all in `take3/server.js` and in `take3/template.html`. Hopefully by specifying a diferent file to watch and command to run when one starts Node allows `server.js` to be readily adapted to other projects without needing any code changes in either file.
 
-`sed -e "s:PUTPWDHERE:$(pwd):" nginx.conf.template > nginx.conf`
+However, it is important to note that this auto-refresh trick works because of custom JavaScript embedded in `template.html`. We don’t want this code to be present when we publish a Pollen document for a production environment, that is, when it’s ready to be shared with the world—it likely won’t cause any harm but really should be omitted if it’s not needed.
 
+For this reason, `template.html` checks to see if a `POLLEN` environment variable is available. This is set, to `"TESTING"`, by prefixing the variable to the call to raco: `POLLEN=TESTING raco …`. The template blindly assumes that, if this environment varialbe is defined, Pollen is being run in a testing environment—it doesn’t care what the actual contents of the string are, and this behavior can certainly be customized within the template using Racket.
 
+And if the template decides it is in a testing environment, it will include a couple of `<script>` tags in the HTML header which load the JavaScript that facilitates the auto-refresh feature. If no `POLLEN` environment variable is defined, these scripts are omitted.
+
+This is classic Pollen:
+```racket
+◊(if (getenv "POLLEN") "
+<script src='/public/eventsource.min.js'></script>
+<!-- ... ... ... -->
+" "")
+```
+We use Racket’s `if`, and choose to embed either a multi-line string containing HTML and JavaScript code, or an empty string. Happily, HTML and JavaScript can use single- and double-quotes just as easily, so I had to do no escaping of quotes in the `if` form! I can copy-and-paste HTML/JavaScript from non-Pollen sources without any problems. If I insisted on using double-quote, though, I would have had to escape them within the multiline quote.
+
+### Summary of Take 3
+
+In this last take of this poor guide to Pollen, we were able to use Racket’s multiline string support to effortlessly embed HTML and JavaScript in a document’s rendered output based on if/then logic.
+
+But this take really focused on infrastructure to make the Pollen authoring process smoother. We cobbled together some JavaScript, script kiddie style, to watch a file for changes, rerun the Pollen renderer when changes were detected, and use server-sent events and the EventSource web technologies to communicate to the browser to refresh the page, getting the latest content.
+
+## Epilogue
+
+The first take of this poor guide revisited the basic features of Pollen that one needs to know to start being productive in it. The second looked in-depth into one situation where one needed a bit of common Racket to achieve some pedestrian results. The third and final take set up some infrastructure to auto-refresh a document in a browser when it was saved.
+
+By the end of this guide, I hope you are comfortable writing Pollen documents and confident in Pollen’s ability to transform its markup into any HTML you want. And by extension, any other format too.
+
+Using Pollen markup has been much more liberating than using Markdown with custom Pandoc writers written in Lua because, although Pandoc does give custom writers an AST, it is not as flexible as having the full X-exprs. Although it looks a bit more “pointy” than Markdown, I think the benefits of Pollen markup far make up for it.
 

@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="/public/tufte.css">
 
 ◊(if (getenv "POLLEN") "
+<script src='/public/eventsource.min.js'></script>
 <script>
-
 var id = 'refreshme';
 var testEvent = new EventSource('/events/' + id);
 

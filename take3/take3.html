@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="/public/tufte.css">
 
 
+<script src='/public/eventsource.min.js'></script>
 <script>
-
 var id = 'refreshme';
 var testEvent = new EventSource('/events/' + id);
 
@@ -22,5 +22,5 @@ testEvent.addEventListener('sendMessage', function(event) {
 </head>
 
 <article>
-<decoded-root><h1>Take Three. Automate the world.</h1><section><p>This take is all about infrastructure to ease Pollen authoring. Make sure you have <code>fswatch</code> and <code>curl</code> installed. Also be sure to follow the instructions on installing, configuring, and starting Nginx.</p><p>Run <code>$ ./testing.sh</code> shell script in this directory. This renders this document, then using <code>curl</code> sends a message to the HTTP server.</p><p>Open <a href="http://localhost:8080/take3.html">localhost:8080/take3.html</a> and position your browser window so you can watch it while you edit this document.</p><p>Run <code>$ ./fswatch.sh</code>. This script will re-run <code>testing.sh</code> when this Pollen markup file or the template changes. (This script will take over your terminal, so start it somewhere out of the way.)</p><p>Now, edit this file and save it. In a second, you'll see your browser refresh with the new contents.</p></section></decoded-root>
+<decoded-root><h1>Take Three. Automate the world.</h1><section><p>This take is all about infrastructure to ease Pollen authoring. Make sure you installed and set up <a href="https://nodejs.org">node.js</a>. If you are using Internet Explorer or Edge or any browser that doesn't support EventSource (listed in red at <a href="http://caniuse.com/#feat=eventsource">Can I Use</a>), pay attention to the instructions for you.</p><p>Run <code>$ node server take3.html.pm "POLLEN=TESTING raco pollen render take3.html"</code>. This starts the webserver and auxiliary code to watch this <code>take3.html.pm</code> file for changes.</p><p>Open <a href="http://localhost:3000/take3.html">localhost:3000/take3.html</a> and position your browser window so you can watch it while you edit this document.</p><p>Now, edit this Pollen file and save it. In a second or three, you'll see your browser refresh with the new contents.</p><p>Caveat: for annoying technical reasons, the page will update twice, in rapid succession, every time you save this Pollen file.</p></section></decoded-root>
 </article>

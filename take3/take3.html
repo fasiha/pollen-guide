@@ -2,24 +2,25 @@
 <head>
 <meta charset="UTF-8">
 <title>Take Three. Automate the world.</title>
-<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="/public/tufte.css">
 
 
-<script type='text/javascript' src='/pushstream.js'></script>
 <script>
-var pushstream = new PushStream({port:8080, });
-  pushstream.onmessage = function(data) {
-    console.log('Received message:', data);
-    if (data === 'now') {
-      window.location.reload();
-    }
-  };
-  pushstream.addChannel('refreshme');
-  pushstream.connect();
+
+var id = 'refreshme';
+var testEvent = new EventSource('/events/' + id);
+
+testEvent.addEventListener('sendMessage', function(event) {
+  var data = JSON.parse(event.data);
+  console.log('Data received:', data);
+  if (data === 'change' || data === 'rename') {
+    window.location.reload();
+  }
+});
 </script>
 
 </head>
 
 <article>
-<decoded-root><h1>Take Three. Automate the world.</h1><section><p>This take is all about infrastructure to ease Pollen authoring. Make sure to follow the instructions on installing, configuring, and starting Nginx. Also be sure you have <code>fswatch</code> and <code>curl</code> installed.</p><p>There is already a <code>testing.sh</code> shell script in this directory. It renders this document, then sends a message, the string "now", to an Nginx channel called "refreshme"—this is done using <code>curl</code>.</p><p>Run <code>./testing.sh</code>. If you don't already have it open, visit <a href="http://localhost:8080/take3.html">localhost:8080/take3.html</a>.</p><p>Also run <code>fswatch.sh</code>, which sets up an fswatch that runs <code>testing.sh</code> whenever either this Pollen markup file or the template changes. This script will take over your terminal, so start it somewhere out of the way.</p><p>Now, edit this file and save it. In a second, you'll see your browser refresh with the new contents.</p></section></decoded-root>
+<decoded-root><h1>Take Three. Automate the world.</h1><section><p>This take is all about infrastructure to ease Pollen authoring. Make sure you have <code>fswatch</code> and <code>curl</code> installed. Also be sure to follow the instructions on installing, configuring, and starting Nginx.</p><p>Run <code>$ ./testing.sh</code> shell script in this directory. This renders this document, then using <code>curl</code> sends a message to the HTTP server.</p><p>Open <a href="http://localhost:8080/take3.html">localhost:8080/take3.html</a> and position your browser window so you can watch it while you edit this document.</p><p>Run <code>$ ./fswatch.sh</code>. This script will re-run <code>testing.sh</code> when this Pollen markup file or the template changes. (This script will take over your terminal, so start it somewhere out of the way.)</p><p>Now, edit this file and save it. In a second, you'll see your browser refresh with the new contents.</p></section></decoded-root>
 </article>

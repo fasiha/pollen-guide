@@ -214,6 +214,8 @@ We will be building Nginx from source and will include this [push stream module]
 6. Build and install Nginx: `$ make && make install` (you may need a `sudo make install` if you chose to install it to its default location of `/usr/local/bin`).
   a. If you chose to install it to a personal directory, feel free to go there and rename the `nginx` executable to something else, in case you have a global `nginx` that you don't want to stop using.
 
+
+
 Now you can test 
 
 `sed -e "s:PUTPWDHERE:$(pwd):" nginx.conf.template > nginx.conf`

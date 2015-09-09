@@ -14,6 +14,5 @@ Observe that ◊emphatic{this call} produces the same result as ◊(emphatic "th
 
 Build me with ◊pre{
 $ raco pollen render take1.html
-$ python -m SimpleHTTPServer 9090
 }
-Then visit ◊linky["http://localhost:9090/take1.html"]{localhost:9090/take1.html}. Or skip SimpleHTTpServer and just open `take1.html` in your browser.
+Then open `take1.html` in your browser.

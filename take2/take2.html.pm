@@ -38,7 +38,6 @@ We also desperately need to automatically detect paragraphs and insert ◊code{<
 
 Build me with ◊pre{
 $ raco pollen render take2.html
-$ python -m SimpleHTTPServer 9090
 }
-Then visit ◊a['((href "http://localhost:9090/take2.html"))]{localhost:9090/take2.html}. Or skip SimpleHTTPServer and just open ◊code{take2.html} in your browser.
+Then open ◊code{take2.html} in your browser.
 }

@@ -2,20 +2,21 @@
 <head>
 <meta charset="UTF-8">
 <title>◊select['h1 doc]</title>
-<link rel="stylesheet" href="tufte.css">
+<link rel="stylesheet" href="/public/tufte.css">
 
 ◊(if (getenv "POLLEN") "
-<script type='text/javascript' src='/pushstream.js'></script>
 <script>
-var pushstream = new PushStream({port:8080, });
-  pushstream.onmessage = function(data) {
-    console.log('Received message:', data);
-    if (data === 'now') {
-      window.location.reload();
-    }
-  };
-  pushstream.addChannel('refreshme');
-  pushstream.connect();
+
+var id = 'refreshme';
+var testEvent = new EventSource('/events/' + id);
+
+testEvent.addEventListener('sendMessage', function(event) {
+  var data = JSON.parse(event.data);
+  console.log('Data received:', data);
+  if (data === 'change' || data === 'rename') {
+    window.location.reload();
+  }
+});
 </script>
 " "")
 </head>

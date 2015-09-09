@@ -43,7 +43,7 @@ Here’s the first thing you need to know. There’s a **one-to-one equivalence*
 - `◊foo[arg1 arg2]{final-arg}`, which [is called](http://pkg-build.racket-lang.org/doc/pollen/reader.html#%28part._.The_two_command_modes__text_mode___.Racket_mode%29) Pollen text mode, and 
 - `◊(foo arg1 arg2 final-arg)` which is Racket mode.
 
-Both call a Racket function `foo`. If the existence of this isomorphism strikes you as pretty freaking amazing, it should, and not just from a theoretical sense. It allows you to treat `foo` as a Racket function using the latter, and as an *equivalent* HTML tag with the former. 
+Both call a Racket function `foo`. This isomorphism allows you to treat `foo` as a plain Racket function using the latter, and as convenient syntactic sugar to define arbitrary X-exprs with the former—X-exprs which may resolve to HTML tags. Because…
 
 ### Pollen forgives undefined functions
 The other thing you need to know is also awesome: **if Pollen finds you using functions-tags that you haven’t `define`d, it’ll treat them as plain HTML tags**. This is why `take1.html.pm` can call `◊h1{Take One …}` without anybody defining `h1` anywhere.
@@ -84,11 +84,11 @@ You may have noticed, even in the screenshot above, that there is some boilerpla
 
 This template is also a Pollen file, despite lacking any Pollen-esque file extension. Note a couple of ◊s in it: the first one is just a bit of showing off—the contents of the first `<h1>` tag is grabbed via a Pollen function `select` and used to set the page’s `<title>`: `<title>◊select['h1 doc]</title>`. (In Racket mode, this would be `◊(select 'h1 doc)`.) The X-expr `doc` containing the abstract syntax tree (AST) of `take1.html.pm` is available when the template is rendered, which `select` can scan, à la `getElementsByTagName`. 
 
-A bit later, inside a Tufte CSS-specific `<article>` tag, another Pollen function `->html` converts the AST to HTML. This function is clearly tightly intertwined with its target format, but it’s illuminating to see an alternative AST-to-output converter: 
+A bit later, inside a Tufte CSS-specific `<article>` tag, another Pollen function `->html` converts the AST to HTML. `->html` is clearly tightly intertwined with its target format. For contrast, here's an alternative AST-to-*plaintext* converter:
 ```racket
-◊(apply string-append (filter string? (flatten doc)))
+◊(apply string-append (filter string? (flatten doc))) ; instead of (->html doc). Generates plaintext.
 ```
-After flattening the nested lists and throwing out tags and attributes, concatenate the strings that remain and you have a pretty good *plaintext* representation of `take1.html.pm`.
+After flattening the nested lists and throwing away tags and attributes, concatenate the strings that remain and you have a pretty good plaintext representation of `take1.html.pm`.
 
 ### Summary of Take One
 
@@ -184,7 +184,7 @@ First, I install [Node.js](https://nodejs.org), a popular cross-platform JavaScr
 
 The HTML page is aware of server-sent events because of some JavaScript we embed in it, and JavaScript is also how it refreshes itself when it gets the command to do so. This is very handy while authoring, but such infrastructure code should be removed before uploading to a public webserver for general viewing. So the last thing we’ll do is make our Pollen markup aware of our desire to make a testing versus production version of the output using an environment variable. Our `template.html`, which contains HTML boilerplate, will check for a `POLLEN` environment variable, and include refresh logic only when in testing mode, otherwise leaving it out. This is the only Pollen-specific part of this take and is a snap given how much we know about Pollen now.
 
-**Aside** I personally use Nginx with this [HTTP push stream module](https://github.com/wandenberg/nginx-push-stream-module), because Nginx is far more performant than Node when it comes to serving big webpages loading images, JavaScript libraries, JSON datasets, MathJax, etc. There’s also a lot less custom code—none, really. But Nginx doesn’t work (well) on Windows, and one has to compile it from scratch to get the HTTP push stream module (which abstracts server-sent events, WebSockets, etc.). Rather than force readers of this poor guide to front this high NRE, I made Node.js alternative. And I chose Node because of my own familiarity and its cross-platform support. It should possible to do all this in Racket.
+**Aside** I personally use Nginx with this [HTTP push stream module](https://github.com/wandenberg/nginx-push-stream-module), because Nginx is far more performant than Node when it comes to serving big webpages loading images, JavaScript libraries, JSON datasets, MathJax, etc. There’s also a lot less custom code—none, really. But Nginx doesn’t work (well) on Windows, and one has to compile it from scratch to get the HTTP push stream module (which abstracts server-sent events, WebSockets, etc.). Rather than force readers of this poor guide to front this high NRE, I made this Node.js alternative. And I chose Node because of my own familiarity with it, and because it is cross-platform. It should possible to do all this in Racket.
 
 ### Setup and use
 
@@ -209,7 +209,7 @@ cp node_modules/event-source-polyfill/eventsource.min.js public/
 
 **Step 3** Third, run
 ```
-$ node server take3.html.pm "POLLEN=TESTING raco pollen render take3.html"
+$ node server.js take3.html.pm "POLLEN=TESTING raco pollen render take3.html"
 ```
 This starts the Node application, including a webserver and a file watch on the `take3.html.pm` Pollen markup file. That string `"POLLEN=TESTING raco …"` is what will be executed when changes to `take3.html.pm` are detected.
 

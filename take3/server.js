@@ -114,9 +114,9 @@ var handleFiles = function() {
       // If no command is needed, transmit the message right away.
       if (COMMAND_TO_RUN) {
         child_process.exec(COMMAND_TO_RUN, function(err, stdout, stderr) {
-          console.log('Command run: \n' + stdout);
+          console.log('Command run. Output: \n' + stdout);
           if (stderr) {
-            console.log('ERROR:', stderr);
+            console.log('Command resulted in ERROR:', stderr);
           }
           transmitMessage();
         });

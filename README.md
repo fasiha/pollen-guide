@@ -1,3 +1,5 @@
+***Caveat*** Please note that this tutorial will no longer work with modern Pollen 😭. I would love to update it but I don't have the time right now. If you have any tips on how to make this work with Pollen today, I would love to hear from you: please [open an issue](https://github.com/fasiha/pollen-guide/issues)! ***End caveat***
+
 # A poor guide to Pollen
 The [official Pollen documentation](pkg-build.racket-lang.org/doc/pollen/) is a rich and hearty repast. That may be why it took me longer than expected to get where I wanted to go.
 

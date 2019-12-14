@@ -13,4 +13,8 @@ Open ◊a['((href "http://localhost:3000/take3.html"))]{localhost:3000/take3.htm
 Now, edit this Pollen file and save it. In a second or three, you'll see your browser refresh with the new contents.
 
 Caveat: for annoying technical reasons, the page will update twice, in rapid succession, every time you save this Pollen file.
+
+This works fine now..... under Ubuntu Linux
+
+I wonder if this will make a difference
 }

@@ -1,9 +1,9 @@
 #lang racket
 
-(require pollen/world pollen/decode)
+(require pollen/decode)
 
 (define (root . xs)
-  (decode `(decoded-root ,@xs)
+  (decode `(div ,@xs)
           #:txexpr-elements-proc detect-paragraphs
           #:exclude-tags '(pre)
           ))

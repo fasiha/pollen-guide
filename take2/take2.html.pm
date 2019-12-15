@@ -1,6 +1,6 @@
 #lang pollen
 ◊(require txexpr)
-◊(require pollen/world pollen/decode)
+◊(require pollen/decode)
 
 ◊(define (sidenote label . xs)
   `(splice-me

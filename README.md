@@ -1,4 +1,4 @@
-***Caveat*** Please note that this tutorial will no longer work with modern Pollen 😭. I would love to update it but I don't have the time right now. If you have any tips on how to make this work with Pollen today, I would love to hear from you: please [open an issue](https://github.com/fasiha/pollen-guide/issues)! ***End caveat***
+***Caveat*** Please note that the bulk of this tutorial was written in [September 2015](https://groups.google.com/forum/#!topic/pollenpub/H-vl05Tjixs), before Pollen reached version 1.0. Now, as of December 2019, Pollen has reached version 2.1, and Andres Moreno was kind enough to update everything to work with Pollen 2! ***End caveat***
 
 # A poor guide to Pollen
 The [official Pollen documentation](pkg-build.racket-lang.org/doc/pollen/) is a rich and hearty repast. That may be why it took me longer than expected to get where I wanted to go.
@@ -9,12 +9,9 @@ So, here’s a poor and meagre introduction that may help others get started as 
 I’m trying to write Pollen markup that generates Dave Liepmann’s [Tufte CSS](http://www.daveliepmann.com/tufte-css/)-compliant HTML. Tufte CSS has some nice rules for sidenotes and headings that I’d like to write for, without writing HTML.
 
 ## Preliminaries
-Install [Racket](http://download.racket-lang.org/)
+Install [Racket](http://download.racket-lang.org/), either by downloading an installer from there, or using your operating system's package manager. Pollen also includes detailed [Installation](https://docs.racket-lang.org/pollen/Installation.html) instructions for Windows, Mac, and Linux.
 
-> On **Mac OS X**, verify the installation location by running `$ /Applications/Racket\ v6.2.1/bin/racket -v`, then add the following to your `~/.bash_profile`: 
-```bash
-export PATH="$PATH:/Applications/Racket v6.2.1/bin"
-```
+> On **macOS**, if you use [Homebrew](https://brew.sh/), simply run `$ brew install minimal-racket`!
 
 Then install Pollen by running `$ raco pkg install pollen` and answering “yes” a couple of times.
 
@@ -180,6 +177,8 @@ Then we saw that there are other things which Pollen has thought about and provi
 In the next and last (planned) take, we’ll set up some infrastructure to make Pollen authoring even easier. We’ll set up a custom Nginx webserver that lets the HTML page auto-refresh whenever the Pollen markup is saved.
 
 ## Take Three, where we get all steampunk
+***Nota bene*** Pollen now includes a [project webserver](https://docs.racket-lang.org/pollen/first-tutorial.html#%28part._.Using_the_project_server%29)! Please consider using that, you don't need this!
+
 So far, my Pollen workflow has been edit–save–compile–refresh, switching between a text editor (gvim), command line, and browser. This is tiring and here’s how I chose to streamline this.
 
 First, I install [Node.js](https://nodejs.org), a popular cross-platform JavaScript runtime with a very large ecosystem, and run a ~100-line JavaScript program which starts a webserver and watches a single Pollen markup file for changes. When I save that file, Node calls `raco` to re-render the HTML and sends a server-sent event to any browser viewing the rendered HTML, telling it to refresh the page.

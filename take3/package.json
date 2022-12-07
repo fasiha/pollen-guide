@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.13.3",
+    "body-parser": "^1.20.1",
     "event-source-polyfill": "0.0.6",
-    "express": "^4.13.3",
+    "express": "^4.18.2",
     "on-finished": "^2.3.0"
   },
   "devDependencies": {},
